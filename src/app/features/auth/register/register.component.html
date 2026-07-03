@@ -1,0 +1,119 @@
+<div class="register-wrapper">
+  <!-- Côté gauche — branding -->
+  <div class="left-panel">
+    <div class="brand">
+      <h1>JOB <span>GATE</span></h1>
+      <p class="tagline">Your gate to professional life</p>
+    </div>
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-icon">🚀</div>
+        <div>
+          <h3>Commencez dès aujourd'hui</h3>
+          <p>Créez votre compte en quelques secondes</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔐</div>
+        <div>
+          <h3>Sécurisé & Fiable</h3>
+          <p>Vos données sont protégées</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div>
+          <h3>Tableau de bord complet</h3>
+          <p>Suivez tout depuis un seul endroit</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Côté droit — formulaire -->
+  <div class="right-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Créer un compte</h2>
+        <p>Rejoignez la plateforme Jobgate</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <div class="row">
+          <div class="input-group">
+            <label>Nom</label>
+            <div class="input-wrapper" [class.error]="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched">
+              <span class="input-icon">👤</span>
+              <input type="text" formControlName="nom" placeholder="Votre nom">
+            </div>
+            <span class="error-text" *ngIf="registerForm.get('nom')?.hasError('required') && registerForm.get('nom')?.touched">
+              Obligatoire
+            </span>
+          </div>
+
+          <div class="input-group">
+            <label>Prénom</label>
+            <div class="input-wrapper" [class.error]="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched">
+              <span class="input-icon">👤</span>
+              <input type="text" formControlName="prenom" placeholder="Votre prénom">
+            </div>
+            <span class="error-text" *ngIf="registerForm.get('prenom')?.hasError('required') && registerForm.get('prenom')?.touched">
+              Obligatoire
+            </span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Adresse email</label>
+          <div class="input-wrapper" [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <span class="input-icon">✉️</span>
+            <input type="email" formControlName="email" placeholder="votre@email.com">
+          </div>
+          <span class="error-text" *ngIf="registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched">
+            Email obligatoire
+          </span>
+          <span class="error-text" *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched">
+            Format invalide
+          </span>
+        </div>
+
+        <div class="input-group">
+          <label>Mot de passe</label>
+          <div class="input-wrapper" [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <span class="input-icon">🔒</span>
+            <input [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Minimum 6 caractères">
+            <span class="toggle-password" (click)="hidePassword = !hidePassword">
+              {{ hidePassword ? '👁️' : '🙈' }}
+            </span>
+          </div>
+          <span class="error-text" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">
+            Minimum 6 caractères
+          </span>
+        </div>
+
+
+        <div class="error-alert" *ngIf="errorMessage">
+          ⚠️ {{ errorMessage }}
+        </div>
+
+        <div class="info-alert">
+            Votre compte sera créé avec le rôle <strong>Stagiaire</strong> et devra être validé par un administrateur avant de pouvoir vous connecter.
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="registerForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Créer mon compte →</span>
+          <span *ngIf="isLoading">Inscription en cours...</span>
+        </button>
+
+      </form>
+
+      <div class="divider"><span>ou</span></div>
+
+      <p class="login-link">
+        Déjà un compte ?
+        <a routerLink="/login">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</div>

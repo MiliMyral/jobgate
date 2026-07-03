@@ -1,0 +1,194 @@
+<div class="dashboard-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <mat-icon>work</mat-icon><span>Jobgate</span>
+    </div>
+    <div class="sidebar-role-badge">Responsable RH</div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="activeMenu === 'dashboard'" (click)="setMenu('dashboard')">
+        <mat-icon>dashboard</mat-icon><span>Tableau de bord</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'stagiaires'" (click)="setMenu('stagiaires')">
+        <mat-icon>people</mat-icon><span>Stagiaires</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'missions'" (click)="setMenu('missions')">
+        <mat-icon>assignment</mat-icon><span>Missions</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'evaluations'" (click)="setMenu('evaluations')">
+        <mat-icon>star</mat-icon><span>Évaluations</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'feedbacks'" (click)="setMenu('feedbacks')">
+        <mat-icon>feedback</mat-icon><span>Feedbacks</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar">{{ email.charAt(0).toUpperCase() }}</div>
+        <div class="user-mini-info">
+          <span>{{ email }}</span>
+          <small>Responsable RH</small>
+        </div>
+      </div>
+      <a class="nav-item logout" (click)="logout()">
+        <mat-icon>logout</mat-icon><span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h2>{{ activeMenu === 'dashboard' ? 'Tableau de bord' :
+             activeMenu === 'stagiaires' ? 'Mes stagiaires' :
+             activeMenu === 'missions' ? 'Missions' :
+             activeMenu === 'evaluations' ? 'Évaluations' : 'Feedbacks' }}</h2>
+        <p class="breadcrumb">Jobgate / RH</p>
+      </div>
+      <div class="user-chip">
+        <div class="avatar sm">{{ email.charAt(0).toUpperCase() }}</div>
+        <span>{{ email }}</span>
+      </div>
+    </header>
+
+    <div *ngIf="activeMenu === 'dashboard'">
+      <div class="welcome-banner rh-banner">
+        <div>
+          <h1>Espace RH 👔</h1>
+          <p>Gérez vos stagiaires, missions et évaluations.</p>
+        </div>
+        <mat-icon class="banner-icon">manage_accounts</mat-icon>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stagiaires.length }}</span>
+            <span class="stat-label">Stagiaires</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><mat-icon>assignment</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ missions.length }}</span>
+            <span class="stat-label">Missions</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Évaluations</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><mat-icon>feedback</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Feedbacks</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Liste des stagiaires</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Université</th>
+                <th>Spécialité</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of stagiaires">
+                <td><strong>{{ s.nom }} {{ s.prenom }}</strong></td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.universite }}</td>
+                <td>{{ s.specialite }}</td>
+                <td><span class="status-badge active">{{ s.statut }}</span></td>
+              </tr>
+              <tr *ngIf="stagiaires.length === 0">
+                <td colspan="5" class="empty-row">Aucun stagiaire</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeMenu === 'stagiaires'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Tous les stagiaires</h3>
+          <button class="btn-primary"><mat-icon>add</mat-icon> Ajouter</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Université</th>
+                <th>Spécialité</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of stagiaires">
+                <td><strong>{{ s.nom }} {{ s.prenom }}</strong></td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.universite }}</td>
+                <td>{{ s.specialite }}</td>
+                <td>{{ s.dateDebut }}</td>
+                <td>{{ s.dateFin }}</td>
+                <td><span class="status-badge active">{{ s.statut }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeMenu === 'missions'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Toutes les missions</h3>
+          <button class="btn-primary"><mat-icon>add</mat-icon> Nouvelle mission</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of missions">
+                <td><strong>{{ m.titre }}</strong></td>
+                <td>{{ m.description }}</td>
+                <td>{{ m.dateDebut }}</td>
+                <td>{{ m.dateFin }}</td>
+                <td><span class="status-badge" [class]="m.statut === 'EN_COURS' ? 'active' : 'pending'">{{ m.statut }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

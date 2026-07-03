@@ -1,0 +1,201 @@
+<div class="dashboard-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <mat-icon class="logo-icon">work</mat-icon>
+      <span>Jobgate</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Tableau de bord</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>people</mat-icon>
+        <span>Stagiaires</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>assignment</mat-icon>
+        <span>Missions</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>star</mat-icon>
+        <span>Évaluations</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>feedback</mat-icon>
+        <span>Feedbacks</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Statistiques</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a class="nav-item logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2>Tableau de bord</h2>
+      </div>
+      <div class="topbar-right">
+        <div class="user-info">
+          <div class="user-avatar">{{ email.charAt(0).toUpperCase() }}</div>
+          <div class="user-details">
+            <span class="user-email">{{ email }}</span>
+            <span class="user-role">{{ role }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1>Bienvenue sur Jobgate ! 👋</h1>
+        <p>Gérez vos stagiaires, missions et évaluations en toute simplicité.</p>
+      </div>
+      <div class="welcome-illustration">
+        <mat-icon class="big-icon">groups</mat-icon>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon"><mat-icon>people</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-number">24</span>
+          <span class="stat-label">Stagiaires</span>
+          <span class="stat-trend">↑ 12% ce mois</span>
+        </div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-icon"><mat-icon>assignment</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-number">18</span>
+          <span class="stat-label">Missions actives</span>
+          <span class="stat-trend">↑ 8% ce mois</span>
+        </div>
+      </div>
+
+      <div class="stat-card purple">
+        <div class="stat-icon"><mat-icon>star</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-number">32</span>
+          <span class="stat-label">Évaluations</span>
+          <span class="stat-trend">↑ 15% ce mois</span>
+        </div>
+      </div>
+
+      <div class="stat-card orange">
+        <div class="stat-icon"><mat-icon>feedback</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-number">45</span>
+          <span class="stat-label">Feedbacks</span>
+          <span class="stat-trend">↑ 20% ce mois</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM SECTION -->
+    <div class="bottom-grid">
+
+      <!-- ACTIVITE RECENTE -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Activité récente</h3>
+          <a class="see-all">Voir tout</a>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <div class="activity-content">
+              <p><strong>Nouvelle mission assignée</strong></p>
+              <span>Module authentification → Ahmed Trabelsi</span>
+            </div>
+            <span class="activity-time">Il y a 2h</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div class="activity-content">
+              <p><strong>Évaluation complétée</strong></p>
+              <span>Note 18/20 attribuée à Ahmed Trabelsi</span>
+            </div>
+            <span class="activity-time">Il y a 5h</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot purple"></div>
+            <div class="activity-content">
+              <p><strong>Nouveau feedback</strong></p>
+              <span>Feedback de Sonia Mansouri</span>
+            </div>
+            <span class="activity-time">Il y a 1j</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <div class="activity-content">
+              <p><strong>Stagiaire ajouté</strong></p>
+              <span>Ahmed Trabelsi a rejoint la plateforme</span>
+            </div>
+            <span class="activity-time">Il y a 2j</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MISSIONS EN COURS -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Missions en cours</h3>
+          <a class="see-all">Voir toutes</a>
+        </div>
+        <div class="mission-list">
+          <div class="mission-item">
+            <div class="mission-icon blue"><mat-icon>code</mat-icon></div>
+            <div class="mission-info">
+              <p>Développement module Auth</p>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 70%; background: #0066cc;"></div>
+              </div>
+            </div>
+            <span class="mission-pct">70%</span>
+          </div>
+          <div class="mission-item">
+            <div class="mission-icon green"><mat-icon>design_services</mat-icon></div>
+            <div class="mission-info">
+              <p>Conception UI Dashboard</p>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 45%; background: #00c853;"></div>
+              </div>
+            </div>
+            <span class="mission-pct">45%</span>
+          </div>
+          <div class="mission-item">
+            <div class="mission-icon purple"><mat-icon>storage</mat-icon></div>
+            <div class="mission-info">
+              <p>Configuration base de données</p>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 90%; background: #7c4dff;"></div>
+              </div>
+            </div>
+            <span class="mission-pct">90%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

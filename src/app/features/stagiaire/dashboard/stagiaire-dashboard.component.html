@@ -1,0 +1,111 @@
+<div class="dashboard-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <mat-icon>work</mat-icon><span>Jobgate</span>
+    </div>
+    <div class="sidebar-role-badge">Stagiaire</div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="activeMenu === 'dashboard'" (click)="setMenu('dashboard')">
+        <mat-icon>dashboard</mat-icon><span>Mon espace</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'profil'" (click)="setMenu('profil')">
+        <mat-icon>person</mat-icon><span>Mon profil</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'missions'" (click)="setMenu('missions')">
+        <mat-icon>assignment</mat-icon><span>Mes missions</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'evaluations'" (click)="setMenu('evaluations')">
+        <mat-icon>star</mat-icon><span>Mes évaluations</span>
+      </a>
+      <a class="nav-item" [class.active]="activeMenu === 'feedbacks'" (click)="setMenu('feedbacks')">
+        <mat-icon>feedback</mat-icon><span>Mes feedbacks</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar">{{ email.charAt(0).toUpperCase() }}</div>
+        <div class="user-mini-info">
+          <span>{{ email }}</span>
+          <small>Stagiaire</small>
+        </div>
+      </div>
+      <a class="nav-item logout" (click)="logout()">
+        <mat-icon>logout</mat-icon><span>Déconnexion</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h2>{{ activeMenu === 'dashboard' ? 'Mon espace' :
+             activeMenu === 'profil' ? 'Mon profil' :
+             activeMenu === 'missions' ? 'Mes missions' :
+             activeMenu === 'evaluations' ? 'Mes évaluations' : 'Mes feedbacks' }}</h2>
+        <p class="breadcrumb">Jobgate / Stagiaire</p>
+      </div>
+      <div class="user-chip">
+        <div class="avatar sm">{{ email.charAt(0).toUpperCase() }}</div>
+        <span>{{ email }}</span>
+      </div>
+    </header>
+
+    <div *ngIf="activeMenu === 'dashboard'">
+      <div class="welcome-banner stagiaire-banner">
+        <div>
+          <h1>Mon espace stagiaire 🎓</h1>
+          <p>Consultez vos missions, évaluations et feedbacks.</p>
+        </div>
+        <mat-icon class="banner-icon">school</mat-icon>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><mat-icon>assignment</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Mes missions</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><mat-icon>task_alt</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Tâches terminées</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Évaluations</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><mat-icon>feedback</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Feedbacks reçus</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Informations du compte</h3>
+        </div>
+        <div class="profile-info">
+          <div class="profile-avatar">{{ email.charAt(0).toUpperCase() }}</div>
+          <div class="profile-details">
+            <p><strong>Email :</strong> {{ email }}</p>
+            <p><strong>Rôle :</strong> Stagiaire</p>
+            <p><strong>Statut :</strong> <span class="status-badge active">Actif</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
