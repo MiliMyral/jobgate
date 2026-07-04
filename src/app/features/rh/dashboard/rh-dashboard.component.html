@@ -4,25 +4,20 @@
       <mat-icon>work</mat-icon><span>Jobgate</span>
     </div>
     <div class="sidebar-role-badge">Responsable RH</div>
-
     <nav class="sidebar-nav">
-      <a class="nav-item" [class.active]="activeMenu === 'dashboard'" (click)="setMenu('dashboard')">
+      <a class="nav-item" [class.active]="activeMenu==='dashboard'" (click)="setMenu('dashboard')">
         <mat-icon>dashboard</mat-icon><span>Tableau de bord</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'stagiaires'" (click)="setMenu('stagiaires')">
+      <a class="nav-item" [class.active]="activeMenu==='stagiaires'" (click)="setMenu('stagiaires')">
         <mat-icon>people</mat-icon><span>Stagiaires</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'missions'" (click)="setMenu('missions')">
+      <a class="nav-item" [class.active]="activeMenu==='missions'" (click)="setMenu('missions')">
         <mat-icon>assignment</mat-icon><span>Missions</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'evaluations'" (click)="setMenu('evaluations')">
+      <a class="nav-item" [class.active]="activeMenu==='evaluations'" (click)="setMenu('evaluations')">
         <mat-icon>star</mat-icon><span>Évaluations</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'feedbacks'" (click)="setMenu('feedbacks')">
-        <mat-icon>feedback</mat-icon><span>Feedbacks</span>
-      </a>
     </nav>
-
     <div class="sidebar-bottom">
       <div class="user-mini">
         <div class="avatar">{{ email.charAt(0).toUpperCase() }}</div>
@@ -40,10 +35,9 @@
   <main class="main-content">
     <header class="topbar">
       <div>
-        <h2>{{ activeMenu === 'dashboard' ? 'Tableau de bord' :
-             activeMenu === 'stagiaires' ? 'Mes stagiaires' :
-             activeMenu === 'missions' ? 'Missions' :
-             activeMenu === 'evaluations' ? 'Évaluations' : 'Feedbacks' }}</h2>
+        <h2>{{ activeMenu==='dashboard' ? 'Tableau de bord' :
+             activeMenu==='stagiaires' ? 'Mes stagiaires' :
+             activeMenu==='missions' ? 'Missions' : 'Évaluations' }}</h2>
         <p class="breadcrumb">Jobgate / RH</p>
       </div>
       <div class="user-chip">
@@ -52,7 +46,11 @@
       </div>
     </header>
 
-    <div *ngIf="activeMenu === 'dashboard'">
+    <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+    <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <!-- DASHBOARD -->
+    <div *ngIf="activeMenu==='dashboard'">
       <div class="welcome-banner rh-banner">
         <div>
           <h1>Espace RH 👔</h1>
@@ -60,26 +58,25 @@
         </div>
         <mat-icon class="banner-icon">manage_accounts</mat-icon>
       </div>
-
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" (click)="setMenu('stagiaires')">
           <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
           <div class="stat-info">
             <span class="stat-number">{{ stagiaires.length }}</span>
             <span class="stat-label">Stagiaires</span>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" (click)="setMenu('missions')">
           <div class="stat-icon green"><mat-icon>assignment</mat-icon></div>
           <div class="stat-info">
             <span class="stat-number">{{ missions.length }}</span>
             <span class="stat-label">Missions</span>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" (click)="setMenu('evaluations')">
           <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
           <div class="stat-info">
-            <span class="stat-number">0</span>
+            <span class="stat-number">{{ evaluations.length }}</span>
             <span class="stat-label">Évaluations</span>
           </div>
         </div>
@@ -91,67 +88,37 @@
           </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Liste des stagiaires</h3>
-        </div>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Université</th>
-                <th>Spécialité</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let s of stagiaires">
-                <td><strong>{{ s.nom }} {{ s.prenom }}</strong></td>
-                <td>{{ s.email }}</td>
-                <td>{{ s.universite }}</td>
-                <td>{{ s.specialite }}</td>
-                <td><span class="status-badge active">{{ s.statut }}</span></td>
-              </tr>
-              <tr *ngIf="stagiaires.length === 0">
-                <td colspan="5" class="empty-row">Aucun stagiaire</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
 
-    <div *ngIf="activeMenu === 'stagiaires'">
+    <!-- STAGIAIRES -->
+    <div *ngIf="activeMenu==='stagiaires'">
       <div class="card">
         <div class="card-header">
-          <h3>Tous les stagiaires</h3>
-          <button class="btn-primary"><mat-icon>add</mat-icon> Ajouter</button>
+          <h3>Liste des stagiaires ({{ stagiaires.length }})</h3>
         </div>
         <div class="table-wrapper">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Université</th>
-                <th>Spécialité</th>
-                <th>Début</th>
-                <th>Fin</th>
-                <th>Statut</th>
+                <th>Nom</th><th>Email</th><th>Université</th>
+                <th>Spécialité</th><th>Début</th><th>Fin</th><th>Statut</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let s of stagiaires">
-                <td><strong>{{ s.nom }} {{ s.prenom }}</strong></td>
+                <td><div class="user-cell">
+                  <div class="avatar sm">{{ s.nom?.charAt(0) }}</div>
+                  <strong>{{ s.nom }} {{ s.prenom }}</strong>
+                </div></td>
                 <td>{{ s.email }}</td>
                 <td>{{ s.universite }}</td>
                 <td>{{ s.specialite }}</td>
                 <td>{{ s.dateDebut }}</td>
                 <td>{{ s.dateFin }}</td>
-                <td><span class="status-badge active">{{ s.statut }}</span></td>
+                <td><span class="status-badge" [class]="getStatutClass(s.statut)">{{ s.statut }}</span></td>
+              </tr>
+              <tr *ngIf="stagiaires.length === 0">
+                <td colspan="7" class="empty-row">Aucun stagiaire</td>
               </tr>
             </tbody>
           </table>
@@ -159,22 +126,60 @@
       </div>
     </div>
 
-    <div *ngIf="activeMenu === 'missions'">
+    <!-- MISSIONS -->
+    <div *ngIf="activeMenu==='missions'">
       <div class="card">
         <div class="card-header">
-          <h3>Toutes les missions</h3>
-          <button class="btn-primary"><mat-icon>add</mat-icon> Nouvelle mission</button>
+          <h3>Missions ({{ missions.length }})</h3>
+          <button class="btn-primary" (click)="showMissionForm = !showMissionForm">
+            <mat-icon>{{ showMissionForm ? 'close' : 'add' }}</mat-icon>
+            {{ showMissionForm ? 'Annuler' : 'Nouvelle mission' }}
+          </button>
         </div>
+
+        <!-- FORM MISSION -->
+        <div class="form-section" *ngIf="showMissionForm">
+          <form [formGroup]="missionForm" (ngSubmit)="submitMission()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Titre</label>
+                <input type="text" formControlName="titre" placeholder="Titre de la mission">
+              </div>
+              <div class="form-group">
+                <label>Stagiaire</label>
+                <select formGroupName="stagiaire">
+                  <option value="">Sélectionner un stagiaire</option>
+                  <option *ngFor="let s of stagiaires" [value]="s.id">
+                    {{ s.nom }} {{ s.prenom }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea formControlName="description" placeholder="Description de la mission" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date début</label>
+                <input type="date" formControlName="dateDebut">
+              </div>
+              <div class="form-group">
+                <label>Date fin</label>
+                <input type="date" formControlName="dateFin">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="missionForm.invalid || isLoading">
+              <mat-icon>save</mat-icon>
+              {{ isLoading ? 'Création...' : 'Créer la mission' }}
+            </button>
+          </form>
+        </div>
+
         <div class="table-wrapper">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Titre</th>
-                <th>Description</th>
-                <th>Début</th>
-                <th>Fin</th>
-                <th>Statut</th>
-              </tr>
+              <tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let m of missions">
@@ -182,13 +187,11 @@
                 <td>{{ m.description }}</td>
                 <td>{{ m.dateDebut }}</td>
                 <td>{{ m.dateFin }}</td>
-                <td><span class="status-badge" [class]="m.statut === 'EN_COURS' ? 'active' : 'pending'">{{ m.statut }}</span></td>
+                <td><span class="status-badge" [class]="getStatutClass(m.statut)">{{ m.statut }}</span></td>
+                <td>
+                  <button class="btn-sm delete" (click)="deleteMission(m.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
               </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </main>
-</div>
+              <tr *ngIf="missions.length === 0">

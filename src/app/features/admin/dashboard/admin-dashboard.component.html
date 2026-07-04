@@ -21,7 +21,7 @@
         <span class="badge" *ngIf="stats.pending > 0">{{ stats.pending }}</span>
       </a>
       <a class="nav-item" [class.active]="activeMenu === 'rh'" (click)="setMenu('rh')">
-        <mat-icon>badge</mat-icon><span>Responsables RH</span>
+        <mat-icon>badge</mat-icon><span>Créer un RH</span>
       </a>
       <a class="nav-item" [class.active]="activeMenu === 'stats'" (click)="setMenu('stats')">
         <mat-icon>bar_chart</mat-icon><span>Statistiques</span>
@@ -30,7 +30,7 @@
 
     <div class="sidebar-bottom">
       <div class="user-mini">
-        <div class="avatar">{{ email.charAt(0).toUpperCase() }}</div>
+        <div class="avatar sm">{{ email.charAt(0).toUpperCase() }}</div>
         <div class="user-mini-info">
           <span>{{ email }}</span>
           <small>Admin</small>
@@ -51,7 +51,7 @@
         <h2>{{ activeMenu === 'dashboard' ? 'Tableau de bord' :
              activeMenu === 'users' ? 'Gestion des utilisateurs' :
              activeMenu === 'pending' ? 'Comptes en attente' :
-             activeMenu === 'rh' ? 'Responsables RH' : 'Statistiques' }}</h2>
+             activeMenu === 'rh' ? 'Créer un Responsable RH' : 'Statistiques' }}</h2>
         <p class="breadcrumb">Jobgate / Administration</p>
       </div>
       <div class="topbar-right">
@@ -66,10 +66,12 @@
       </div>
     </header>
 
-    <!-- DASHBOARD VIEW -->
-    <div *ngIf="activeMenu === 'dashboard'">
+    <!-- MESSAGES -->
+    <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+    <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-      <!-- WELCOME -->
+    <!-- DASHBOARD -->
+    <div *ngIf="activeMenu === 'dashboard'">
       <div class="welcome-banner admin-banner">
         <div>
           <h1>Bienvenue, Administrateur 👋</h1>
@@ -78,7 +80,189 @@
         <mat-icon class="banner-icon">admin_panel_settings</mat-icon>
       </div>
 
-      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card" (click)="setMenu('users')">
+          <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stats.total }}</span>
+            <span class="stat-label">Total utilisateurs</span>
+          </div>
+        </div>
+        <div class="stat-card" (click)="setMenu('users')">
+          <div class="stat-icon green"><mat-icon>check_circle</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stats.active }}</span>
+            <span class="stat-label">Comptes actifs</span>
+          </div>
+        </div>
+        <div class="stat-card" (click)="setMenu('pending')">
+          <div class="stat-icon orange"><mat-icon>pending</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stats.pending }}</span>
+            <span class="stat-label">En attente</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><mat-icon>cancel</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stats.rejected }}</span>
+            <span class="stat-label">Refusés</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="pendingUsers.length > 0">
+        <div class="card-header">
+          <h3>⏳ Comptes en attente de validation</h3>
+          <span class="badge-count">{{ pendingUsers.length }}</span>
+        </div>
+        <div class="pending-list">
+          <div class="pending-item" *ngFor="let user of pendingUsers">
+            <div class="avatar md">{{ user.nom?.charAt(0) || '?' }}</div>
+            <div class="pending-info">
+              <strong>{{ user.nom }} {{ user.prenom }}</strong>
+              <span>{{ user.email }}</span>
+            </div>
+            <div class="pending-actions">
+              <button class="btn-approve" (click)="activateUser(user.id)">
+                <mat-icon>check</mat-icon> Approuver
+              </button>
+              <button class="btn-reject" (click)="rejectUser(user.id)">
+                <mat-icon>close</mat-icon> Refuser
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card empty-card" *ngIf="pendingUsers.length === 0">
+        <mat-icon>check_circle</mat-icon>
+        <p>Aucun compte en attente de validation.</p>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div *ngIf="activeMenu === 'users'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Tous les utilisateurs ({{ allUsers.length }})</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of allUsers">
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar sm">{{ user.nom?.charAt(0) || '?' }}</div>
+                    <strong>{{ user.nom }} {{ user.prenom }}</strong>
+                  </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td><span class="role-badge">{{ getRoleBadge(user) }}</span></td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(user.status)">
+                    {{ user.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-sm approve" (click)="activateUser(user.id)"
+                            *ngIf="user.status !== 'ACTIVE'" title="Activer">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button class="btn-sm reject" (click)="rejectUser(user.id)"
+                            *ngIf="user.status === 'ACTIVE'" title="Désactiver">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                    <button class="btn-sm delete" (click)="deleteUser(user.id)" title="Supprimer">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PENDING -->
+    <div *ngIf="activeMenu === 'pending'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Comptes en attente ({{ pendingUsers.length }})</h3>
+        </div>
+        <div class="pending-list" *ngIf="pendingUsers.length > 0">
+          <div class="pending-item" *ngFor="let user of pendingUsers">
+            <div class="avatar md">{{ user.nom?.charAt(0) || '?' }}</div>
+            <div class="pending-info">
+              <strong>{{ user.nom }} {{ user.prenom }}</strong>
+              <span>{{ user.email }}</span>
+            </div>
+            <div class="pending-actions">
+              <button class="btn-approve" (click)="activateUser(user.id)">
+                <mat-icon>check</mat-icon> Approuver
+              </button>
+              <button class="btn-reject" (click)="rejectUser(user.id)">
+                <mat-icon>close</mat-icon> Refuser
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="empty-card" *ngIf="pendingUsers.length === 0">
+          <mat-icon>check_circle</mat-icon>
+          <p>Aucun compte en attente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREER RH -->
+    <div *ngIf="activeMenu === 'rh'">
+      <div class="card form-card">
+        <div class="card-header">
+          <h3>Créer un compte Responsable RH</h3>
+        </div>
+        <form [formGroup]="createRHForm" (ngSubmit)="submitCreateRH()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" formControlName="nom" placeholder="Nom du responsable">
+            </div>
+            <div class="form-group">
+              <label>Prénom</label>
+              <input type="text" formControlName="prenom" placeholder="Prénom du responsable">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="email@jobgate.com">
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" formControlName="password" placeholder="Minimum 6 caractères">
+          </div>
+          <div class="form-info">
+            ℹ️ Le compte RH sera créé avec le statut <strong>Actif</strong> et pourra se connecter immédiatement.
+          </div>
+          <button type="submit" class="btn-primary" [disabled]="createRHForm.invalid || isLoading">
+            <mat-icon>person_add</mat-icon>
+            {{ isLoading ? 'Création...' : 'Créer le compte RH' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div *ngIf="activeMenu === 'stats'">
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
@@ -107,67 +291,6 @@
             <span class="stat-number">{{ stats.rejected }}</span>
             <span class="stat-label">Refusés</span>
           </div>
-        </div>
-      </div>
-
-      <!-- PENDING USERS -->
-      <div class="card" *ngIf="pendingUsers.length > 0">
-        <div class="card-header">
-          <h3>⏳ Comptes en attente de validation</h3>
-          <span class="badge-count">{{ pendingUsers.length }}</span>
-        </div>
-        <div class="pending-list">
-          <div class="pending-item" *ngFor="let user of pendingUsers">
-            <div class="avatar md">{{ user.nom?.charAt(0) || '?' }}</div>
-            <div class="pending-info">
-              <strong>{{ user.nom }} {{ user.prenom }}</strong>
-              <span>{{ user.email }}</span>
-            </div>
-            <div class="pending-actions">
-              <button class="btn-approve" (click)="activateUser(user.id)">
-                <mat-icon>check</mat-icon> Approuver
-              </button>
-              <button class="btn-reject" (click)="rejectUser(user.id)">
-                <mat-icon>close</mat-icon> Refuser
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card empty-state" *ngIf="pendingUsers.length === 0">
-        <mat-icon>check_circle</mat-icon>
-        <p>Aucun compte en attente de validation.</p>
-      </div>
-
-    </div>
-
-    <!-- PENDING VIEW -->
-    <div *ngIf="activeMenu === 'pending'">
-      <div class="card">
-        <div class="card-header">
-          <h3>Comptes en attente</h3>
-        </div>
-        <div class="pending-list" *ngIf="pendingUsers.length > 0">
-          <div class="pending-item" *ngFor="let user of pendingUsers">
-            <div class="avatar md">{{ user.nom?.charAt(0) || '?' }}</div>
-            <div class="pending-info">
-              <strong>{{ user.nom }} {{ user.prenom }}</strong>
-              <span>{{ user.email }}</span>
-            </div>
-            <div class="pending-actions">
-              <button class="btn-approve" (click)="activateUser(user.id)">
-                <mat-icon>check</mat-icon> Approuver
-              </button>
-              <button class="btn-reject" (click)="rejectUser(user.id)">
-                <mat-icon>close</mat-icon> Refuser
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="empty-state" *ngIf="pendingUsers.length === 0">
-          <mat-icon>check_circle</mat-icon>
-          <p>Aucun compte en attente.</p>
         </div>
       </div>
     </div>

@@ -4,25 +4,20 @@
       <mat-icon>work</mat-icon><span>Jobgate</span>
     </div>
     <div class="sidebar-role-badge">Stagiaire</div>
-
     <nav class="sidebar-nav">
-      <a class="nav-item" [class.active]="activeMenu === 'dashboard'" (click)="setMenu('dashboard')">
+      <a class="nav-item" [class.active]="activeMenu==='dashboard'" (click)="setMenu('dashboard')">
         <mat-icon>dashboard</mat-icon><span>Mon espace</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'profil'" (click)="setMenu('profil')">
-        <mat-icon>person</mat-icon><span>Mon profil</span>
-      </a>
-      <a class="nav-item" [class.active]="activeMenu === 'missions'" (click)="setMenu('missions')">
+      <a class="nav-item" [class.active]="activeMenu==='missions'" (click)="setMenu('missions')">
         <mat-icon>assignment</mat-icon><span>Mes missions</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'evaluations'" (click)="setMenu('evaluations')">
+      <a class="nav-item" [class.active]="activeMenu==='evaluations'" (click)="setMenu('evaluations')">
         <mat-icon>star</mat-icon><span>Mes évaluations</span>
       </a>
-      <a class="nav-item" [class.active]="activeMenu === 'feedbacks'" (click)="setMenu('feedbacks')">
-        <mat-icon>feedback</mat-icon><span>Mes feedbacks</span>
+      <a class="nav-item" [class.active]="activeMenu==='profil'" (click)="setMenu('profil')">
+        <mat-icon>person</mat-icon><span>Mon profil</span>
       </a>
     </nav>
-
     <div class="sidebar-bottom">
       <div class="user-mini">
         <div class="avatar">{{ email.charAt(0).toUpperCase() }}</div>
@@ -40,10 +35,9 @@
   <main class="main-content">
     <header class="topbar">
       <div>
-        <h2>{{ activeMenu === 'dashboard' ? 'Mon espace' :
-             activeMenu === 'profil' ? 'Mon profil' :
-             activeMenu === 'missions' ? 'Mes missions' :
-             activeMenu === 'evaluations' ? 'Mes évaluations' : 'Mes feedbacks' }}</h2>
+        <h2>{{ activeMenu==='dashboard' ? 'Mon espace' :
+             activeMenu==='missions' ? 'Mes missions' :
+             activeMenu==='evaluations' ? 'Mes évaluations' : 'Mon profil' }}</h2>
         <p class="breadcrumb">Jobgate / Stagiaire</p>
       </div>
       <div class="user-chip">
@@ -52,7 +46,8 @@
       </div>
     </header>
 
-    <div *ngIf="activeMenu === 'dashboard'">
+    <!-- DASHBOARD -->
+    <div *ngIf="activeMenu==='dashboard'">
       <div class="welcome-banner stagiaire-banner">
         <div>
           <h1>Mon espace stagiaire 🎓</h1>
@@ -62,25 +57,25 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" (click)="setMenu('missions')">
           <div class="stat-icon blue"><mat-icon>assignment</mat-icon></div>
           <div class="stat-info">
-            <span class="stat-number">0</span>
+            <span class="stat-number">{{ missions.length }}</span>
             <span class="stat-label">Mes missions</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon green"><mat-icon>task_alt</mat-icon></div>
           <div class="stat-info">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Tâches terminées</span>
+            <span class="stat-number">{{ missions.length }}</span>
+            <span class="stat-label">Tâches assignées</span>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" (click)="setMenu('evaluations')">
           <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
           <div class="stat-info">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Évaluations</span>
+            <span class="stat-number">{{ evaluations.length }}</span>
+            <span class="stat-label">Évaluations reçues</span>
           </div>
         </div>
         <div class="stat-card">
@@ -92,20 +87,99 @@
         </div>
       </div>
 
+      <!-- MISSIONS RECENTES -->
       <div class="card">
         <div class="card-header">
-          <h3>Informations du compte</h3>
+          <h3>Mes missions récentes</h3>
+          <a class="see-all" (click)="setMenu('missions')">Voir toutes →</a>
         </div>
-        <div class="profile-info">
-          <div class="profile-avatar">{{ email.charAt(0).toUpperCase() }}</div>
-          <div class="profile-details">
-            <p><strong>Email :</strong> {{ email }}</p>
-            <p><strong>Rôle :</strong> Stagiaire</p>
-            <p><strong>Statut :</strong> <span class="status-badge active">Actif</span></p>
+        <div class="mission-list">
+          <div class="mission-item" *ngFor="let m of missions.slice(0,3)">
+            <div class="mission-icon"><mat-icon>assignment</mat-icon></div>
+            <div class="mission-info">
+              <p><strong>{{ m.titre }}</strong></p>
+              <span>{{ m.dateDebut }} → {{ m.dateFin }}</span>
+            </div>
+            <span class="status-badge" [class]="getStatutClass(m.statut)">{{ m.statut }}</span>
           </div>
+          <div class="empty-row" *ngIf="missions.length === 0">Aucune mission assignée</div>
         </div>
       </div>
     </div>
 
-  </main>
-</div>
+    <!-- MISSIONS -->
+    <div *ngIf="activeMenu==='missions'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Mes missions ({{ missions.length }})</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of missions">
+                <td><strong>{{ m.titre }}</strong></td>
+                <td>{{ m.description }}</td>
+                <td>{{ m.dateDebut }}</td>
+                <td>{{ m.dateFin }}</td>
+                <td><span class="status-badge" [class]="getStatutClass(m.statut)">{{ m.statut }}</span></td>
+              </tr>
+              <tr *ngIf="missions.length === 0">
+                <td colspan="5" class="empty-row">Aucune mission assignée</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVALUATIONS -->
+    <div *ngIf="activeMenu==='evaluations'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Mes évaluations ({{ evaluations.length }})</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Note</th><th>Commentaire</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of evaluations">
+                <td><span class="note-badge">{{ e.note }}/20</span></td>
+                <td>{{ e.commentaire }}</td>
+                <td>{{ e.dateEvaluation }}</td>
+              </tr>
+              <tr *ngIf="evaluations.length === 0">
+                <td colspan="3" class="empty-row">Aucune évaluation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL -->
+    <div *ngIf="activeMenu==='profil'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Mon profil</h3>
+        </div>
+        <div class="profile-section">
+          <div class="profile-avatar-lg">{{ email.charAt(0).toUpperCase() }}</div>
+          <div class="profile-details">
+            <div class="profile-item">
+              <mat-icon>email</mat-icon>
+              <div>
+                <label>Email</label>
+                <p>{{ email }}</p>
+              </div>
+            </div>
+            <div class="profile-item">
+              <mat-icon>badge</mat-icon>
+              <div>
+                <label>Rôle</label>
+                <p>Stagiaire</p>
+              </div>

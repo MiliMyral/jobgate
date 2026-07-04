@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiService } from '../../../core/services/api.service';
 
 @Component({
   selector: 'app-stagiaire-dashboard',
@@ -21,12 +21,18 @@ export class StagiaireDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private http: HttpClient
+    private apiService: ApiService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.email = this.authService.getEmail() || '';
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.apiService.getAllMissions().subscribe({ next: (d) => this.missions = d });
+    this.apiService.getAllEvaluations().subscribe({ next: (d) => this.evaluations = d });
   }
 
   setMenu(menu: string): void { this.activeMenu = menu; }
@@ -34,5 +40,11 @@ export class StagiaireDashboardComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  getStatutClass(statut: string): string {
+    if (statut === 'EN_COURS') return 'active';
+    if (statut === 'TERMINEE') return 'success';
+    return 'pending';
   }
 }
