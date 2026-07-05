@@ -103,4 +103,9 @@ export class ApiService {
   createFeedback(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/feedbacks`, data);
   }
+  downloadPdf(stagiaireId: number): Observable<Blob> {
+  return this.http.get(`${this.baseUrl}/pdf/stagiaire/${stagiaireId}`, {
+    responseType: 'blob'
+  });
+}
 }

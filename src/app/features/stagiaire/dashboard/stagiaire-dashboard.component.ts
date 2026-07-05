@@ -47,4 +47,17 @@ export class StagiaireDashboardComponent implements OnInit {
     if (statut === 'TERMINEE') return 'success';
     return 'pending';
   }
+  downloadPdf(): void {
+  this.apiService.downloadPdf(2).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'rapport-stage.pdf';
+      link.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: () => alert('Erreur lors du téléchargement du PDF')
+  });
+}
 }

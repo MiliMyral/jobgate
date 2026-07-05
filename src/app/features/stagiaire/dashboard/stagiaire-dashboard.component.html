@@ -177,6 +177,24 @@
                 <p>{{ email }}</p>
               </div>
             </div>
+            <div class="card" style="margin-top: 1rem;">
+  <div class="card-header">
+    <h3>Documents</h3>
+  </div>
+  <div class="doc-section">
+    <div class="doc-item">
+      <div class="doc-icon"><mat-icon>picture_as_pdf</mat-icon></div>
+      <div class="doc-info">
+        <p><strong>Fiche de suivi de stage</strong></p>
+        <span>Rapport complet avec évaluations et missions</span>
+      </div>
+      <button class="btn-download" (click)="downloadPdf()">
+        <mat-icon>download</mat-icon>
+        Télécharger
+      </button>
+    </div>
+  </div>
+</div>
             <div class="profile-item">
               <mat-icon>badge</mat-icon>
               <div>
