@@ -11,6 +11,10 @@
       <a class="nav-item" [class.active]="activeMenu==='stagiaires'" (click)="setMenu('stagiaires')">
         <mat-icon>people</mat-icon><span>Stagiaires</span>
       </a>
+      <a class="nav-item" [class.active]="activeMenu==='documents'" (click)="setMenu('documents')">
+        <mat-icon>folder_shared</mat-icon><span>Documents</span>
+        <span class="badge" *ngIf="rapports.length > 0">{{ rapports.length }}</span>
+      </a>
       <a class="nav-item" [class.active]="activeMenu==='missions'" (click)="setMenu('missions')">
         <mat-icon>assignment</mat-icon><span>Missions</span>
       </a>
@@ -36,7 +40,8 @@
     <header class="topbar">
       <div>
         <h2>{{ activeMenu==='dashboard' ? 'Tableau de bord' :
-             activeMenu==='stagiaires' ? 'Mes stagiaires' :
+             activeMenu==='stagiaires' ? 'Stagiaires' :
+             activeMenu==='documents' ? 'Gestion des documents' :
              activeMenu==='missions' ? 'Missions' : 'Évaluations' }}</h2>
         <p class="breadcrumb">Jobgate / RH</p>
       </div>
@@ -46,18 +51,16 @@
       </div>
     </header>
 
-    <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
-    <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
-
     <!-- DASHBOARD -->
     <div *ngIf="activeMenu==='dashboard'">
       <div class="welcome-banner rh-banner">
         <div>
           <h1>Espace RH 👔</h1>
-          <p>Gérez vos stagiaires, missions et évaluations.</p>
+          <p>Gérez vos stagiaires, documents, missions et évaluations.</p>
         </div>
         <mat-icon class="banner-icon">manage_accounts</mat-icon>
       </div>
+
       <div class="stats-grid">
         <div class="stat-card" (click)="setMenu('stagiaires')">
           <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
@@ -66,26 +69,59 @@
             <span class="stat-label">Stagiaires</span>
           </div>
         </div>
+        <div class="stat-card" (click)="setMenu('documents')">
+          <div class="stat-icon green"><mat-icon>description</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ rapports.length }}</span>
+            <span class="stat-label">Rapports reçus</span>
+          </div>
+        </div>
         <div class="stat-card" (click)="setMenu('missions')">
-          <div class="stat-icon green"><mat-icon>assignment</mat-icon></div>
+          <div class="stat-icon purple"><mat-icon>assignment</mat-icon></div>
           <div class="stat-info">
             <span class="stat-number">{{ missions.length }}</span>
             <span class="stat-label">Missions</span>
           </div>
         </div>
         <div class="stat-card" (click)="setMenu('evaluations')">
-          <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
+          <div class="stat-icon orange"><mat-icon>star</mat-icon></div>
           <div class="stat-info">
             <span class="stat-number">{{ evaluations.length }}</span>
             <span class="stat-label">Évaluations</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon orange"><mat-icon>feedback</mat-icon></div>
-          <div class="stat-info">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Feedbacks</span>
-          </div>
+      </div>
+
+      <!-- RAPPORTS EN ATTENTE -->
+      <div class="card" *ngIf="rapports.length > 0">
+        <div class="card-header">
+          <h3>📄 Rapports reçus</h3>
+          <a class="see-all" (click)="setMenu('documents')">Voir tous →</a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Stagiaire</th><th>Fichier</th><th>Date</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of rapports.slice(0,5)">
+                <td><strong>{{ r.stagiaire?.nom }} {{ r.stagiaire?.prenom }}</strong></td>
+                <td>{{ r.nomFichier }}</td>
+                <td>{{ r.dateDepot | date:'dd/MM/yyyy' }}</td>
+                <td><span class="status-badge" [class]="getStatutClass(r.statut)">{{ r.statut }}</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-sm download" (click)="telechargerDocument(r.id, r.nomFichier)" title="Télécharger">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                    <button class="btn-sm validate" (click)="ouvrirValidation(r)" title="Valider/Rejeter">
+                      <mat-icon>rate_review</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -99,26 +135,148 @@
         <div class="table-wrapper">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Nom</th><th>Email</th><th>Université</th>
-                <th>Spécialité</th><th>Début</th><th>Fin</th><th>Statut</th>
-              </tr>
+              <tr><th>Nom</th><th>Email</th><th>Université</th><th>Spécialité</th><th>Début</th><th>Fin</th><th>Statut</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let s of stagiaires">
-                <td><div class="user-cell">
-                  <div class="avatar sm">{{ s.nom?.charAt(0) }}</div>
-                  <strong>{{ s.nom }} {{ s.prenom }}</strong>
-                </div></td>
+                <td><div class="user-cell"><div class="avatar sm">{{ s.nom?.charAt(0) }}</div><strong>{{ s.nom }} {{ s.prenom }}</strong></div></td>
                 <td>{{ s.email }}</td>
                 <td>{{ s.universite }}</td>
                 <td>{{ s.specialite }}</td>
                 <td>{{ s.dateDebut }}</td>
                 <td>{{ s.dateFin }}</td>
-                <td><span class="status-badge" [class]="getStatutClass(s.statut)">{{ s.statut }}</span></td>
+                <td><span class="status-badge active">{{ s.statut }}</span></td>
               </tr>
               <tr *ngIf="stagiaires.length === 0">
                 <td colspan="7" class="empty-row">Aucun stagiaire</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div *ngIf="activeMenu==='documents'">
+
+      <!-- SEARCH -->
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher un stagiaire..." class="search-input">
+      </div>
+
+      <!-- STATS DOCUMENTS -->
+      <div class="stats-grid" style="margin-bottom: 1.5rem;">
+        <div class="stat-card">
+          <div class="stat-icon blue"><mat-icon>people</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ stagiaires.length }}</span>
+            <span class="stat-label">Stagiaires</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><mat-icon>description</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ rapports.length }}</span>
+            <span class="stat-label">Rapports reçus</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><mat-icon>pending</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">{{ rapports.length }}</span>
+            <span class="stat-label">En attente</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><mat-icon>folder_shared</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Fiches déposées</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLEAU DOCUMENTS PAR STAGIAIRE -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Suivi des documents par stagiaire</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Stagiaire</th>
+                <th>Rapport de stage</th>
+                <th>Date rapport</th>
+                <th>Fiche de suivi</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of filteredStagiaires">
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar sm">{{ s.nom?.charAt(0) }}</div>
+                    <div>
+                      <strong>{{ s.nom }} {{ s.prenom }}</strong>
+                      <br><small style="color:#888">{{ s.email }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getRapportStatutClass(s.id)">
+                    {{ getRapportStatutLabel(s.id) }}
+                  </span>
+                </td>
+                <td>
+                  {{ documentsParStagiaire[s.id]?.rapport?.dateDepot
+                    ? (documentsParStagiaire[s.id].rapport.dateDepot | date:'dd/MM/yyyy')
+                     : '—' }}
+                </td>
+                <td>
+                  <span class="status-badge" [class]="documentsParStagiaire[s.id]?.fiche ? 'success' : 'pending'">
+                    {{ documentsParStagiaire[s.id]?.fiche ? 'Déposée' : 'Non déposée' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <!-- Télécharger rapport -->
+                    <button class="btn-sm download"
+                            *ngIf="documentsParStagiaire[s.id]?.rapport"
+                            (click)="telechargerDocument(documentsParStagiaire[s.id].rapport.id, documentsParStagiaire[s.id].rapport.nomFichier)"
+                            title="Télécharger rapport">
+                      <mat-icon>download</mat-icon>
+                    </button>
+
+                    <!-- Valider/Rejeter rapport -->
+                    <button class="btn-sm validate"
+                            *ngIf="documentsParStagiaire[s.id]?.rapport && documentsParStagiaire[s.id]?.rapport?.statut === 'EN_ATTENTE'"
+                            (click)="ouvrirValidation(documentsParStagiaire[s.id].rapport)"
+                            title="Valider/Rejeter">
+                      <mat-icon>rate_review</mat-icon>
+                    </button>
+
+                    <!-- Déposer fiche de suivi -->
+                    <label class="btn-sm upload" title="Déposer fiche de suivi">
+                      <mat-icon>upload_file</mat-icon>
+                      <input type="file" accept=".pdf"
+                             (change)="onFicheSuiviSelected($event, s.id)"
+                             hidden>
+                    </label>
+
+                    <!-- Télécharger fiche de suivi -->
+                    <button class="btn-sm fiche"
+                            *ngIf="documentsParStagiaire[s.id]?.fiche"
+                            (click)="telechargerDocument(documentsParStagiaire[s.id].fiche.id, documentsParStagiaire[s.id].fiche.nomFichier)"
+                            title="Télécharger fiche suivi">
+                      <mat-icon>folder_shared</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredStagiaires.length === 0">
+                <td colspan="5" class="empty-row">Aucun stagiaire trouvé</td>
               </tr>
             </tbody>
           </table>
@@ -137,7 +295,6 @@
           </button>
         </div>
 
-        <!-- FORM MISSION -->
         <div class="form-section" *ngIf="showMissionForm">
           <form [formGroup]="missionForm" (ngSubmit)="submitMission()">
             <div class="form-row">
@@ -147,17 +304,15 @@
               </div>
               <div class="form-group">
                 <label>Stagiaire</label>
-                <select formGroupName="stagiaire">
+                <select (change)="onStagiaireSelectMission($event)">
                   <option value="">Sélectionner un stagiaire</option>
-                  <option *ngFor="let s of stagiaires" [value]="s.id">
-                    {{ s.nom }} {{ s.prenom }}
-                  </option>
+                  <option *ngFor="let s of stagiaires" [value]="s.id">{{ s.nom }} {{ s.prenom }}</option>
                 </select>
               </div>
             </div>
             <div class="form-group">
               <label>Description</label>
-              <textarea formControlName="description" placeholder="Description de la mission" rows="3"></textarea>
+              <textarea formControlName="description" rows="3"></textarea>
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -170,17 +325,14 @@
               </div>
             </div>
             <button type="submit" class="btn-primary" [disabled]="missionForm.invalid || isLoading">
-              <mat-icon>save</mat-icon>
-              {{ isLoading ? 'Création...' : 'Créer la mission' }}
+              <mat-icon>save</mat-icon> {{ isLoading ? 'Création...' : 'Créer' }}
             </button>
           </form>
         </div>
 
         <div class="table-wrapper">
           <table class="data-table">
-            <thead>
-              <tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr>
-            </thead>
+            <thead><tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody>
               <tr *ngFor="let m of missions">
                 <td><strong>{{ m.titre }}</strong></td>
@@ -188,10 +340,99 @@
                 <td>{{ m.dateDebut }}</td>
                 <td>{{ m.dateFin }}</td>
                 <td><span class="status-badge" [class]="getStatutClass(m.statut)">{{ m.statut }}</span></td>
-                <td>
-                  <button class="btn-sm delete" (click)="deleteMission(m.id)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
+                <td><button class="btn-sm delete" (click)="deleteMission(m.id)"><mat-icon>delete</mat-icon></button></td>
               </tr>
-              <tr *ngIf="missions.length === 0">
+              <tr *ngIf="missions.length === 0"><td colspan="6" class="empty-row">Aucune mission</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVALUATIONS -->
+    <div *ngIf="activeMenu==='evaluations'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Évaluations ({{ evaluations.length }})</h3>
+          <button class="btn-primary" (click)="showEvalForm = !showEvalForm">
+            <mat-icon>{{ showEvalForm ? 'close' : 'add' }}</mat-icon>
+            {{ showEvalForm ? 'Annuler' : 'Nouvelle évaluation' }}
+          </button>
+        </div>
+
+        <div class="form-section" *ngIf="showEvalForm">
+          <form [formGroup]="evaluationForm" (ngSubmit)="submitEvaluation()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Stagiaire</label>
+                <select (change)="onStagiaireSelectEval($event)">
+                  <option value="">Sélectionner un stagiaire</option>
+                  <option *ngFor="let s of stagiaires" [value]="s.id">{{ s.nom }} {{ s.prenom }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Note /20</label>
+                <input type="number" formControlName="note" min="0" max="20">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Commentaire</label>
+              <textarea formControlName="commentaire" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" formControlName="dateEvaluation">
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="evaluationForm.invalid || isLoading">
+              <mat-icon>save</mat-icon> {{ isLoading ? 'Création...' : 'Créer' }}
+            </button>
+          </form>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Stagiaire</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of evaluations">
+                <td><strong>{{ e.stagiaire?.nom }} {{ e.stagiaire?.prenom }}</strong></td>
+                <td><span class="note-badge">{{ e.note }}/20</span></td>
+                <td>{{ e.commentaire }}</td>
+                <td>{{ e.dateEvaluation }}</td>
+                <td><button class="btn-sm delete" (click)="deleteEvaluation(e.id)"><mat-icon>delete</mat-icon></button></td>
+              </tr>
+              <tr *ngIf="evaluations.length === 0"><td colspan="5" class="empty-row">Aucune évaluation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL VALIDATION -->
+<div class="modal-overlay" *ngIf="showValidationModal" (click)="showValidationModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Valider le rapport</h3>
+      <button class="modal-close" (click)="showValidationModal = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Fichier :</strong> {{ selectedRapport?.nomFichier }}</p>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label>Commentaire (optionnel)</label>
+        <textarea [(ngModel)]="commentaireRH" rows="3" placeholder="Votre commentaire pour le stagiaire..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-reject-modal" (click)="validerRapport('REJETE')">
+        <mat-icon>close</mat-icon> Rejeter
+      </button>
+      <button class="btn-validate-modal" (click)="validerRapport('VALIDE')">
+        <mat-icon>check</mat-icon> Valider
+      </button>
+    </div>
+  </div>
+</div>

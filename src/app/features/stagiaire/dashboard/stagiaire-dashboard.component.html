@@ -8,6 +8,9 @@
       <a class="nav-item" [class.active]="activeMenu==='dashboard'" (click)="setMenu('dashboard')">
         <mat-icon>dashboard</mat-icon><span>Mon espace</span>
       </a>
+      <a class="nav-item" [class.active]="activeMenu==='documents'" (click)="setMenu('documents')">
+        <mat-icon>folder</mat-icon><span>Mes documents</span>
+      </a>
       <a class="nav-item" [class.active]="activeMenu==='missions'" (click)="setMenu('missions')">
         <mat-icon>assignment</mat-icon><span>Mes missions</span>
       </a>
@@ -36,6 +39,7 @@
     <header class="topbar">
       <div>
         <h2>{{ activeMenu==='dashboard' ? 'Mon espace' :
+             activeMenu==='documents' ? 'Mes documents' :
              activeMenu==='missions' ? 'Mes missions' :
              activeMenu==='evaluations' ? 'Mes évaluations' : 'Mon profil' }}</h2>
         <p class="breadcrumb">Jobgate / Stagiaire</p>
@@ -51,11 +55,12 @@
       <div class="welcome-banner stagiaire-banner">
         <div>
           <h1>Mon espace stagiaire 🎓</h1>
-          <p>Consultez vos missions, évaluations et feedbacks.</p>
+          <p>Gérez vos documents, missions et évaluations.</p>
         </div>
         <mat-icon class="banner-icon">school</mat-icon>
       </div>
 
+      <!-- STATS -->
       <div class="stats-grid">
         <div class="stat-card" (click)="setMenu('missions')">
           <div class="stat-icon blue"><mat-icon>assignment</mat-icon></div>
@@ -64,45 +69,181 @@
             <span class="stat-label">Mes missions</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><mat-icon>task_alt</mat-icon></div>
-          <div class="stat-info">
-            <span class="stat-number">{{ missions.length }}</span>
-            <span class="stat-label">Tâches assignées</span>
-          </div>
-        </div>
         <div class="stat-card" (click)="setMenu('evaluations')">
           <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
           <div class="stat-info">
             <span class="stat-number">{{ evaluations.length }}</span>
-            <span class="stat-label">Évaluations reçues</span>
+            <span class="stat-label">Évaluations</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon orange"><mat-icon>feedback</mat-icon></div>
+        <div class="stat-card" (click)="setMenu('documents')">
+          <div class="stat-icon" [class]="rapport ? 'green' : 'orange'">
+            <mat-icon>description</mat-icon>
+          </div>
           <div class="stat-info">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Feedbacks reçus</span>
+            <span class="stat-number">{{ rapport ? '1' : '0' }}</span>
+            <span class="stat-label">Rapport déposé</span>
+          </div>
+        </div>
+        <div class="stat-card" (click)="setMenu('documents')">
+          <div class="stat-icon" [class]="ficheSuivi ? 'green' : 'orange'">
+            <mat-icon>folder_shared</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number">{{ ficheSuivi ? '1' : '0' }}</span>
+            <span class="stat-label">Fiche de suivi</span>
           </div>
         </div>
       </div>
 
-      <!-- MISSIONS RECENTES -->
+      <!-- PROGRESSION -->
       <div class="card">
         <div class="card-header">
-          <h3>Mes missions récentes</h3>
-          <a class="see-all" (click)="setMenu('missions')">Voir toutes →</a>
+          <h3>Progression du stage</h3>
+          <span class="pct-label">{{ getProgressionStage() }}%</span>
         </div>
-        <div class="mission-list">
-          <div class="mission-item" *ngFor="let m of missions.slice(0,3)">
-            <div class="mission-icon"><mat-icon>assignment</mat-icon></div>
-            <div class="mission-info">
-              <p><strong>{{ m.titre }}</strong></p>
-              <span>{{ m.dateDebut }} → {{ m.dateFin }}</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" [style.width.%]="getProgressionStage()"></div>
+        </div>
+        <p class="progress-info">
+          {{ missions.length === 0 ? 'Aucune mission assignée' : getProgressionStage() + '% des missions terminées' }}
+        </p>
+      </div>
+
+      <!-- APERÇU DOCUMENTS -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Mes documents</h3>
+          <a class="see-all" (click)="setMenu('documents')">Gérer →</a>
+        </div>
+        <div class="doc-preview-list">
+          <div class="doc-preview-item">
+            <div class="doc-icon-sm" [class]="rapport ? 'pdf' : 'empty'">
+              <mat-icon>{{ rapport ? 'picture_as_pdf' : 'upload_file' }}</mat-icon>
             </div>
-            <span class="status-badge" [class]="getStatutClass(m.statut)">{{ m.statut }}</span>
+            <div class="doc-preview-info">
+              <p><strong>Mon rapport de stage</strong></p>
+              <span [class]="'status-badge ' + (rapport ? getStatutClass(rapport.statut) : 'pending')">
+                {{ getStatutRapportLabel() }}
+              </span>
+            </div>
+            <button class="btn-sm-action" (click)="setMenu('documents')">
+              <mat-icon>{{ rapport ? 'visibility' : 'upload' }}</mat-icon>
+            </button>
           </div>
-          <div class="empty-row" *ngIf="missions.length === 0">Aucune mission assignée</div>
+
+          <div class="doc-preview-item">
+            <div class="doc-icon-sm" [class]="ficheSuivi ? 'pdf' : 'empty'">
+              <mat-icon>{{ ficheSuivi ? 'folder_shared' : 'folder_open' }}</mat-icon>
+            </div>
+            <div class="doc-preview-info">
+              <p><strong>Fiche de suivi RH</strong></p>
+              <span class="status-badge" [class]="ficheSuivi ? 'success' : 'pending'">
+                {{ ficheSuivi ? 'Disponible' : 'Non déposée par le RH' }}
+              </span>
+            </div>
+            <button class="btn-sm-action" (click)="ficheSuivi && telechargerDocument(ficheSuivi.id, ficheSuivi.nomFichier)" [disabled]="!ficheSuivi">
+              <mat-icon>download</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div *ngIf="activeMenu==='documents'">
+
+      <!-- RAPPORT DE STAGE -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📄 Mon rapport de stage</h3>
+          <span class="status-badge" *ngIf="rapport" [class]="getStatutClass(rapport.statut)">
+            {{ getStatutRapportLabel() }}
+          </span>
+        </div>
+
+        <div class="doc-detail" *ngIf="rapport">
+          <div class="doc-info-grid">
+            <div class="doc-info-item">
+              <label>Nom du fichier</label>
+              <p>{{ rapport.nomFichier }}</p>
+            </div>
+            <div class="doc-info-item">
+              <label>Date de dépôt</label>
+              <p>{{ rapport.dateDepot | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+            <div class="doc-info-item" *ngIf="rapport.commentaireRH">
+              <label>Commentaire du RH</label>
+              <p class="rh-comment">{{ rapport.commentaireRH }}</p>
+            </div>
+          </div>
+          <div class="doc-actions">
+            <button class="btn-download" (click)="telechargerDocument(rapport.id, rapport.nomFichier)">
+              <mat-icon>download</mat-icon> Télécharger
+            </button>
+            <label class="btn-replace" *ngIf="rapport.statut !== 'VALIDE'">
+              <mat-icon>upload</mat-icon> Remplacer
+              <input type="file" accept=".pdf" (change)="onRapportFileSelected($event)" hidden>
+            </label>
+          </div>
+        </div>
+
+        <div class="upload-zone" *ngIf="!rapport">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <p>Aucun rapport déposé</p>
+          <span>Déposez votre rapport de stage au format PDF</span>
+          <label class="btn-upload" [class.loading]="isUploading">
+            <mat-icon>upload_file</mat-icon>
+            {{ isUploading ? 'Envoi en cours...' : 'Choisir un fichier PDF' }}
+            <input type="file" accept=".pdf" (change)="onRapportFileSelected($event)" [disabled]="isUploading" hidden>
+          </label>
+        </div>
+      </div>
+
+      <!-- FICHE DE SUIVI -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 Fiche de suivi (déposée par le RH)</h3>
+          <span class="status-badge success" *ngIf="ficheSuivi">Disponible</span>
+          <span class="status-badge pending" *ngIf="!ficheSuivi">Non disponible</span>
+        </div>
+
+        <div class="doc-detail" *ngIf="ficheSuivi">
+          <div class="doc-info-grid">
+            <div class="doc-info-item">
+              <label>Nom du fichier</label>
+              <p>{{ ficheSuivi.nomFichier }}</p>
+            </div>
+            <div class="doc-info-item">
+              <label>Date de dépôt</label>
+              <p>{{ ficheSuivi.dateDepot | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+          <div class="doc-actions">
+            <button class="btn-download" (click)="telechargerDocument(ficheSuivi.id, ficheSuivi.nomFichier)">
+              <mat-icon>download</mat-icon> Télécharger ma fiche
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-doc" *ngIf="!ficheSuivi">
+          <mat-icon>folder_open</mat-icon>
+          <p>Votre responsable RH n'a pas encore déposé votre fiche de suivi.</p>
+        </div>
+      </div>
+
+      <!-- FICHE GENEREE -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📊 Fiche générée automatiquement</h3>
+        </div>
+        <div class="doc-detail">
+          <p style="color: #666; margin-bottom: 1rem;">
+            Téléchargez votre fiche de suivi générée automatiquement avec vos missions et évaluations.
+          </p>
+          <button class="btn-download" (click)="downloadPdf()">
+            <mat-icon>picture_as_pdf</mat-icon> Télécharger ma fiche PDF
+          </button>
         </div>
       </div>
     </div>
@@ -110,14 +251,10 @@
     <!-- MISSIONS -->
     <div *ngIf="activeMenu==='missions'">
       <div class="card">
-        <div class="card-header">
-          <h3>Mes missions ({{ missions.length }})</h3>
-        </div>
+        <div class="card-header"><h3>Mes missions ({{ missions.length }})</h3></div>
         <div class="table-wrapper">
           <table class="data-table">
-            <thead>
-              <tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th></tr>
-            </thead>
+            <thead><tr><th>Titre</th><th>Description</th><th>Début</th><th>Fin</th><th>Statut</th></tr></thead>
             <tbody>
               <tr *ngFor="let m of missions">
                 <td><strong>{{ m.titre }}</strong></td>
@@ -138,14 +275,10 @@
     <!-- EVALUATIONS -->
     <div *ngIf="activeMenu==='evaluations'">
       <div class="card">
-        <div class="card-header">
-          <h3>Mes évaluations ({{ evaluations.length }})</h3>
-        </div>
+        <div class="card-header"><h3>Mes évaluations ({{ evaluations.length }})</h3></div>
         <div class="table-wrapper">
           <table class="data-table">
-            <thead>
-              <tr><th>Note</th><th>Commentaire</th><th>Date</th></tr>
-            </thead>
+            <thead><tr><th>Note</th><th>Commentaire</th><th>Date</th></tr></thead>
             <tbody>
               <tr *ngFor="let e of evaluations">
                 <td><span class="note-badge">{{ e.note }}/20</span></td>
@@ -164,40 +297,26 @@
     <!-- PROFIL -->
     <div *ngIf="activeMenu==='profil'">
       <div class="card">
-        <div class="card-header">
-          <h3>Mon profil</h3>
-        </div>
+        <div class="card-header"><h3>Mon profil</h3></div>
         <div class="profile-section">
           <div class="profile-avatar-lg">{{ email.charAt(0).toUpperCase() }}</div>
           <div class="profile-details">
             <div class="profile-item">
               <mat-icon>email</mat-icon>
-              <div>
-                <label>Email</label>
-                <p>{{ email }}</p>
-              </div>
+              <div><label>Email</label><p>{{ email }}</p></div>
             </div>
-            <div class="card" style="margin-top: 1rem;">
-  <div class="card-header">
-    <h3>Documents</h3>
-  </div>
-  <div class="doc-section">
-    <div class="doc-item">
-      <div class="doc-icon"><mat-icon>picture_as_pdf</mat-icon></div>
-      <div class="doc-info">
-        <p><strong>Fiche de suivi de stage</strong></p>
-        <span>Rapport complet avec évaluations et missions</span>
-      </div>
-      <button class="btn-download" (click)="downloadPdf()">
-        <mat-icon>download</mat-icon>
-        Télécharger
-      </button>
-    </div>
-  </div>
-</div>
             <div class="profile-item">
               <mat-icon>badge</mat-icon>
-              <div>
-                <label>Rôle</label>
-                <p>Stagiaire</p>
-              </div>
+              <div><label>Rôle</label><p>Stagiaire</p></div>
+            </div>
+            <div class="profile-item">
+              <mat-icon>check_circle</mat-icon>
+              <div><label>Statut</label><p><span class="status-badge success">Actif</span></p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

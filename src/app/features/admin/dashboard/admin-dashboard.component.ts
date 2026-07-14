@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiService } from '../../../core/services/api.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,12 +25,12 @@ export class AdminDashboardComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   showCreateRH = false;
-
   createRHForm: FormGroup;
 
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
+    private notificationService: NotificationService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -71,20 +72,34 @@ export class AdminDashboardComponent implements OnInit {
 
   activateUser(id: number): void {
     this.apiService.activateUser(id).subscribe({
-      next: () => { this.loadStats(); this.loadPendingUsers(); this.loadAllUsers(); }
+      next: () => {
+        this.notificationService.add('Compte activé avec succès !', 'success');
+        this.loadStats();
+        this.loadPendingUsers();
+        this.loadAllUsers();
+      }
     });
   }
 
   rejectUser(id: number): void {
     this.apiService.rejectUser(id).subscribe({
-      next: () => { this.loadStats(); this.loadPendingUsers(); this.loadAllUsers(); }
+      next: () => {
+        this.notificationService.add('Compte refusé.', 'warning');
+        this.loadStats();
+        this.loadPendingUsers();
+        this.loadAllUsers();
+      }
     });
   }
 
   deleteUser(id: number): void {
     if (confirm('Confirmer la suppression ?')) {
       this.apiService.deleteUser(id).subscribe({
-        next: () => { this.loadStats(); this.loadAllUsers(); }
+        next: () => {
+          this.notificationService.add('Utilisateur supprimé.', 'warning');
+          this.loadStats();
+          this.loadAllUsers();
+        }
       });
     }
   }
@@ -95,16 +110,14 @@ export class AdminDashboardComponent implements OnInit {
       this.apiService.createRH(this.createRHForm.value).subscribe({
         next: () => {
           this.isLoading = false;
-          this.successMessage = '✅ Compte RH créé avec succès !';
+          this.notificationService.add('Compte RH créé avec succès !', 'success');
           this.createRHForm.reset();
           this.showCreateRH = false;
           this.loadAllUsers();
-          setTimeout(() => this.successMessage = '', 3000);
         },
         error: () => {
           this.isLoading = false;
-          this.errorMessage = '❌ Erreur lors de la création du compte RH.';
-          setTimeout(() => this.errorMessage = '', 3000);
+          this.notificationService.add('Erreur lors de la création du compte RH.', 'error');
         }
       });
     }

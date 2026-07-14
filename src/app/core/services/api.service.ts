@@ -41,6 +41,17 @@ export class ApiService {
   }
 
   // === STAGIAIRES ===
+  getAllStagiairesUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/stagiaires/users`);
+}
+getEvaluationsByStagiaire(stagiaireId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/evaluations/stagiaire/${stagiaireId}`);
+}
+  // Missions d'un stagiaire spécifique
+  getMissionsByStagiaire(stagiaireId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/missions/stagiaire/${stagiaireId}`);
+  }
+
   getAllStagiaires(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/stagiaires`);
   }
@@ -64,10 +75,6 @@ export class ApiService {
   // === MISSIONS ===
   getAllMissions(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/missions`);
-  }
-
-  getMissionById(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/missions/${id}`);
   }
 
   createMission(data: any): Observable<any> {
@@ -103,9 +110,60 @@ export class ApiService {
   createFeedback(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/feedbacks`, data);
   }
+
+  // === PDF GENERE ===
   downloadPdf(stagiaireId: number): Observable<Blob> {
-  return this.http.get(`${this.baseUrl}/pdf/stagiaire/${stagiaireId}`, {
-    responseType: 'blob'
-  });
-}
+    return this.http.get(`${this.baseUrl}/pdf/stagiaire/${stagiaireId}`, {
+      responseType: 'blob'
+    });
+  }
+
+  // === DOCUMENTS ===
+  deposerRapport(stagiaireId: number, fichier: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('fichier', fichier);
+    return this.http.post(
+      `${this.baseUrl}/documents/rapport/${stagiaireId}`,
+      formData,
+      { responseType: 'text' }
+    );
+  }
+
+  deposerFicheSuivi(stagiaireId: number, fichier: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('fichier', fichier);
+    return this.http.post(
+      `${this.baseUrl}/documents/fiche-suivi/${stagiaireId}`,
+      formData,
+      { responseType: 'text' }
+    );
+  }
+
+  getRapportStagiaire(stagiaireId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/documents/rapport/${stagiaireId}`);
+  }
+
+  getFicheSuivi(stagiaireId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/documents/fiche-suivi/${stagiaireId}`);
+  }
+
+  getDocumentsByStagiaire(stagiaireId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents/stagiaire/${stagiaireId}`);
+  }
+
+  getAllRapports(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents/rapports`);
+  }
+
+  telechargerDocument(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/documents/telecharger/${id}`, {
+      responseType: 'blob'
+    });
+  }
+
+  changerStatutDocument(id: number, statut: string, commentaire?: string): Observable<any> {
+    let url = `${this.baseUrl}/documents/${id}/statut?statut=${statut}`;
+    if (commentaire) url += `&commentaire=${encodeURIComponent(commentaire)}`;
+    return this.http.put(url, {});
+  }
 }
