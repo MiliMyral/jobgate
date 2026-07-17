@@ -66,11 +66,12 @@ onStagiaireSelectMission(event: any): void {
 onStagiaireSelectEval(event: any): void {
   this.evaluationForm.patchValue({ stagiaireId: event.target.value });
 }
-
+rhId = 0;
   ngOnInit(): void {
-    this.email = this.authService.getEmail() || '';
-    this.loadAll();
-  }
+  this.email = this.authService.getEmail() || '';
+  this.rhId = this.authService.getUserId();
+  this.loadAll();
+}
 
   loadAll(): void {
   this.apiService.getAllStagiairesUsers().subscribe({
@@ -171,7 +172,7 @@ onStagiaireSelectEval(event: any): void {
       dateDebut: this.missionForm.value.dateDebut,
       dateFin: this.missionForm.value.dateFin,
       stagiaire: { id: parseInt(this.missionForm.value.stagiaireId) },
-      responsable: { id: 3 }
+      responsable: { id: this.rhId }
     };
     this.apiService.createMission(data).subscribe({
       next: () => {
@@ -197,7 +198,7 @@ onStagiaireSelectEval(event: any): void {
       commentaire: this.evaluationForm.value.commentaire,
       dateEvaluation: this.evaluationForm.value.dateEvaluation,
       stagiaire: { id: parseInt(this.evaluationForm.value.stagiaireId) },
-      responsable: { id: 3 }
+      responsable: { id: this.rhId }
     };
     this.apiService.createEvaluation(data).subscribe({
       next: () => {
